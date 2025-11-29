@@ -86,14 +86,17 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "6060"
+		panic("PORT environment variable not set")
 	}
 
-	d.Http.Start(":" + port)
+	go func() {
+		d.Http.Start(":" + port)
+	}()
 
 	sigs := make(chan os.Signal, 1)
 
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	<-sigs
 
 	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer shutdownCancel()
