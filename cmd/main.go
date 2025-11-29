@@ -84,7 +84,12 @@ func main() {
 
 	d := delivery.NewDelivery(logger, srv, tracer)
 
-	d.Http.Start(":6060")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "6060"
+	}
+
+	d.Http.Start(":" + port)
 
 	sigs := make(chan os.Signal, 1)
 
@@ -105,6 +110,7 @@ func mustReadConfig() Config {
 		Debug:         os.Getenv("DEBUG") == "true",
 		GmailUsername: os.Getenv("GMAIL_USERNAME"),
 		GmailPassword: os.Getenv("GMAIL_PASSWORD"),
+		HttpPort:      os.Getenv("PORT"),
 	}
 
 	return cfg
@@ -119,6 +125,7 @@ type Config struct {
 	Debug         bool
 	GmailUsername string
 	GmailPassword string
+	HttpPort      string
 }
 
 // setupOTelSDK bootstraps the OpenTelemetry pipeline.
